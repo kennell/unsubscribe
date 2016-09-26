@@ -20,7 +20,7 @@ pool = futures.ProcessPoolExecutor()
     help='automatically unsubscribe from everything'
 )
 @click.option(
-    '--view/--view',
+    '--view/--no-view',
     default=False,
     help='open email in Apple Mail'
 )
@@ -31,9 +31,9 @@ pool = futures.ProcessPoolExecutor()
 
 )
 def main(auto, view, browse):
-    mails = collect_mails(MAIL_DIR)
-    for mail in tqdm(mails, unit=' mails'):
-        with open(mail.path, 'r', encoding='utf-8', errors='ignore') as mailfile:
+    mails = tqdm(collect_mails(MAIL_DIR), unit=' mails')
+    for mail in mails:
+        with open(mail, 'r', encoding='utf-8', errors='ignore') as mailfile:
                 content = mailfile.read()
                 for pattern in UNSUBSCRIBE_PATTERNS:
                     match = re.search(pattern, content, re.IGNORECASE)
@@ -41,10 +41,10 @@ def main(auto, view, browse):
                         if auto:
                             pool.submit(requests.get, match.group(1))
                         if view:
-                            subprocess.call(('open', mail.path))
+                            subprocess.call(("open", mail))
                         if browse:
                             webbrowser.open(match.group(1))
-                    continue
+                        continue
 
 
 if __name__ == '__main__':

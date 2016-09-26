@@ -17,5 +17,5 @@ def collect_mails(dir):
     mails = []
     for f in scantree(dir):
         if f.is_file and f.name.endswith('.emlx'):
-            mails.append(f)
+            mails.append(f.path)
     return mails
